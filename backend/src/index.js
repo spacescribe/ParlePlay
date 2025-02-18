@@ -1,6 +1,5 @@
 const express = require('express');
 const dotenv = require('dotenv');
-// const TranscribeService = require('./clients/transcribe');
 const { transcribeAudio } = require('./clients/assembly.js');
 const getDeepSeekResponse=require('./clients/deepseek.js');
 const {createAudioFileFromText} =require('./clients/elevenlabs.js');
@@ -21,11 +20,15 @@ app.get('/', (req, res)=>{
 app.get("/transcribe", async (req, res) => {
     try {
         const audioFilePath = "/Users/nandini.choukimath/Documents/Projects/French-bot/backend/sample.mp3"; // Adjust path
-        const transcription = await transcribeAudio(audioFilePath);
-        const deepSeekResponse = await getDeepSeekResponse(transcription);
-        createAudioFileFromText(deepSeekResponse);
+        // const transcription = await transcribeAudio(audioFilePath);
+        // const deepSeekResponse = await getDeepSeekResponse(transcription);
+        const userMessage = req.body.userMessage;  
+        console.log('User message:', userMessage);
+        const deepSeekResponse = await getDeepSeekResponse(userMessage);
+        // createAudioFileFromText(deepSeekResponse);
 
-        res.json({ transcription, deepSeekResponse });
+        // res.json({ transcription, deepSeekResponse });
+        res.json({deepSeekResponse});
 
     } catch (error) {
         console.error("Error:", error);
