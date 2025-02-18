@@ -28,6 +28,7 @@ export const createAudioFileFromText = async (text: string): Promise<string> => 
       const filePath = path.join(dirPath, fileName);
 
       const fileStream = createWriteStream(filePath); // Opening file stream
+      console.log(`Audio file path is ${filePath}`);
 
       audio.pipe(fileStream);
       fileStream.on('finish', () => resolve(filePath)); // Resolve with the filePath

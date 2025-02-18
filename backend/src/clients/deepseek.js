@@ -9,6 +9,7 @@ const DEEPSEEK_API_KEY = process.env.OPENROUTER_DEEPSEEK_API_KEY;
 async function getDeepSeekResponse(userMessage) {
   try {
     console.log('Sending request to DeepSeek API...');
+    console.log(`User message is "${userMessage}"`);
     const response = await axios.post(
       DEEPSEEK_API_URL,
       {

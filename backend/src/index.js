@@ -20,13 +20,12 @@ app.get('/', (req, res)=>{
 
 app.get("/transcribe", async (req, res) => {
     try {
-        const audioFilePath = "/Users/nandini.choukimath/Documents/Projects/French-bot/backend/heheh.mp3"; // Adjust path
-        // const transcription = await transcribeAudio(audioFilePath);
-        const deepSeekResponse = await getDeepSeekResponse("How are you?");
+        const audioFilePath = "/Users/nandini.choukimath/Documents/Projects/French-bot/backend/sample.mp3"; // Adjust path
+        const transcription = await transcribeAudio(audioFilePath);
+        const deepSeekResponse = await getDeepSeekResponse(transcription);
         createAudioFileFromText(deepSeekResponse);
 
-        // res.json({ transcription, deepSeekResponse });
-        res.json({deepSeekResponse});
+        res.json({ transcription, deepSeekResponse });
 
     } catch (error) {
         console.error("Error:", error);
