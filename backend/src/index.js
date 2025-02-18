@@ -2,7 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 // const TranscribeService = require('./clients/transcribe');
 const { transcribeAudio } = require('./clients/assembly.js');
-const getDeepSeekResponse=require('./clients/deepseek.js')
+const getDeepSeekResponse=require('./clients/deepseek.js');
+const {createAudioFileFromText} =require('./clients/elevenlabs.js');
 const cors=require('cors')
 
 dotenv.config()
@@ -21,7 +22,8 @@ app.get("/transcribe", async (req, res) => {
     try {
         const audioFilePath = "/Users/nandini.choukimath/Documents/Projects/French-bot/backend/heheh.mp3"; // Adjust path
         // const transcription = await transcribeAudio(audioFilePath);
-        const deepSeekResponse = await getDeepSeekResponse("How are you");
+        const deepSeekResponse = await getDeepSeekResponse("How are you?");
+        createAudioFileFromText(deepSeekResponse);
 
         // res.json({ transcription, deepSeekResponse });
         res.json({deepSeekResponse});

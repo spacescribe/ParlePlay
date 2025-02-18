@@ -8,3 +8,5 @@
 2. npm install express cors dotenv
 3. npm install aws-sdk
 
+# Typescript to Js
+npx tsc
