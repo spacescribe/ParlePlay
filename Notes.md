@@ -6,4 +6,5 @@
 ## Backend
 1. npm init -y
 2. npm install express cors dotenv
-3. 
+3. npm install aws-sdk
+

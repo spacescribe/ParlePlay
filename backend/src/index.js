@@ -1,6 +1,9 @@
-const express=require('express')
+const express = require('express');
+const dotenv = require('dotenv');
+// const TranscribeService = require('./clients/transcribe');
+const { transcribeAudio } = require('./clients/assembly.js');
+const getDeepSeekResponse=require('./clients/deepseek.js')
 const cors=require('cors')
-const dotenv=require('dotenv')
 
 dotenv.config()
 
@@ -13,6 +16,24 @@ app.get('/', (req, res)=>{
     res.send("Welcome to French API!!!");
 })
 
-app.listen(PORT, ()=>{
-    console.log("Sever listening on port ", PORT);
-})
+
+app.get("/transcribe", async (req, res) => {
+    try {
+        const audioFilePath = "/Users/nandini.choukimath/Documents/Projects/French-bot/backend/heheh.mp3"; // Adjust path
+        // const transcription = await transcribeAudio(audioFilePath);
+        const deepSeekResponse = await getDeepSeekResponse("How are you");
+
+        // res.json({ transcription, deepSeekResponse });
+        res.json({deepSeekResponse});
+
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Failed to transcribe audio" });
+    }
+});
+
+  
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
