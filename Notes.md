@@ -8,5 +8,10 @@
 2. npm install express cors dotenv
 3. npm install aws-sdk
 
+## Frontend
+1. npm create vite@latest frontend 
+2. npm install react-audio-voice-recorder
+
+
 # Typescript to Js
 npx tsc
