@@ -62,20 +62,33 @@ app.post("/transcribe", upload.single("audio"), async (req, res) => {
         const transcription = await transcribeAudio(tempFilePath);
         const deepSeekResponse = await getDeepSeekResponse(transcription);
 
-        createAudioFileFromText(deepSeekResponse);
+        const audioFilePath = await createAudioFileFromText(deepSeekResponse);
+        console.log("Saving audio file to:", audioFilePath);
 
-        res.json({ transcription, deepSeekResponse });
+        // ✅ Ensure file exists before sending
+        if (!fs.existsSync(audioFilePath)) {
+            throw new Error("Generated audio file not found");
+        }
+
+        console.log("Audio file successfully created at:", audioFilePath);
+
+        // Send the file after confirming its existence
+        res.sendFile(path.resolve(audioFilePath), (err) => {
+            if (err) {
+                console.error("Error sending audio file:", err);
+                res.status(500).json({ error: "Failed to send audio file" });
+            }
+            
+            // Cleanup: Delete after sending
+            setTimeout(() => {
+                fs.unlinkSync(audioFilePath);
+                console.log("Deleted audio file:", audioFilePath);
+            }, 5000);
+        });
+
     } catch (error) {
         console.error("Error:", error);
-        res.status(500).json({ error: "Failed to transcribe audio" });
-    } finally {
-        // Cleanup: Remove temporary file after processing
-        if (tempFilePath && fs.existsSync(tempFilePath)) {
-            fs.unlink(tempFilePath, (err) => {
-                if (err) console.error("Error deleting temp file:", err);
-                else console.log("Temporary audio file deleted successfully!");
-            });
-        }
+        res.status(500).json({ error: "Failed to process request" });
     }
 });
 

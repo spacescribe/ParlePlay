@@ -68,25 +68,22 @@ const createAudioFileFromText = (text) => __awaiter(void 0, void 0, void 0, func
             const dirPath = path_1.default.join(__dirname, "../data/");
             (0, fs_1.mkdirSync)(dirPath, { recursive: true });
             const filePath = path_1.default.join(dirPath, fileName);
-            const fileStream = (0, fs_1.createWriteStream)(filePath); // Opening file stream
+            const fileStream = (0, fs_1.createWriteStream)(filePath);
+            console.log(`Saving audio file to: ${filePath}`);
             audio.pipe(fileStream);
-            fileStream.on('finish', () => resolve(filePath)); // Resolve with the filePath
-            fileStream.on('error', reject);
+            fileStream.on('finish', () => {
+                console.log(`Audio file successfully created at: ${filePath}`);
+                resolve(filePath); // Only resolve when file writing is complete
+            });
+            fileStream.on('error', (error) => {
+                console.error("Error writing audio file:", error);
+                reject(error);
+            });
         }
         catch (error) {
+            console.error("Error generating audio:", error);
             reject(error);
         }
     }));
 });
 exports.createAudioFileFromText = createAudioFileFromText;
-// Wrapping the call in an async function
-// const generateAudio = async () => {
-//   try {
-//     const filePath = await createAudioFileFromText('Hello World');
-//     console.log(`Audio file generated: ${filePath}`);
-//   } catch (error) {
-//     console.error('Error generating audio:', error);
-//   }
-// };
-// // Call the function to generate audio
-// generateAudio();
