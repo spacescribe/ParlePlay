@@ -50,6 +50,7 @@ function transcribeAudio(filePath) {
             const params = {
                 audio: audioUrl,
                 speaker_labels: true,
+                language_code: 'fr'
             };
             while (true) {
                 const transcript = yield client.transcripts.transcribe(params);

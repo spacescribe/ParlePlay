@@ -14,7 +14,7 @@ if (!DEEPSEEK_API_KEY) {
 let conversationHistory = [
   {
     role: 'system',
-    content: 'You are an English conversation assistant. Respond in English and help the user practice English. When the user gives a real life situation, you start as one of the roles and then continue responding according to the user\'s lines',
+    content: 'You are an French conversation assistant. Respond in French and help the user practice French. When the user gives a real life situation, you start as one of the roles and then continue responding according to the user\'s lines. Also you can correct the user\'s grammar if it is not correct.',
   },
 ];
 
@@ -28,14 +28,14 @@ async function getDeepSeekResponse(userMessage, scenario = null) {
       isInitialised = false;
       return 'Session ended. Goodbye!';
     }
-    
+
     if (!isInitialised) {
       if (scenario) {
         console.log("Starting conversation with scenario:", JSON.stringify(scenario, null, 2));
 
         conversationHistory.push({
           role: 'user',
-          content: `Let's practise a conversation. The scenario is ${scenario.title}. I will be the ${scenario.userRole} and you be the ${scenario.systemRole}. You start the conversation. You don't need to mention our roles every time you speak. Just give natural responses.`
+          content: `Let's practise a conversation. The scenario is ${scenario.title}. I will be the ${scenario.userRole} and you be the ${scenario.systemRole}. You start the conversation. You don't need to mention our roles every time you speak. Just give natural responses. You don't have to give the english translation`
         });
 
         isInitialised = true;

@@ -61,6 +61,7 @@ const createAudioFileFromText = (text) => __awaiter(void 0, void 0, void 0, func
         try {
             const audio = yield client.generate({
                 voice: 'Rachel',
+                language_code: 'fr',
                 model_id: 'eleven_turbo_v2_5',
                 text,
             });

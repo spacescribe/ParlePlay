@@ -38,6 +38,7 @@ async function transcribeAudio(filePath: string): Promise<string> {
         const params = {
             audio: audioUrl,
             speaker_labels: true,
+            language_code: 'fr'
         };
 
         while (true) {
