@@ -1,32 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ReactMediaRecorder } from "react-media-recorder";
 import { useLocation } from "react-router-dom";
 
 const Practise = () => {
     const [latestBlobUrl, setLatestBlobUrl] = useState(null);
-    const [responseAudioUrl, setResponseAudioUrl] = useState(null); // Store AI response audio
+    const [responseAudioUrl, setResponseAudioUrl] = useState(null);
+    const [isActive, setIsActive] = useState(false); // Controls animation
+    const [isPlaying, setIsPlaying] = useState(false); // Track AI audio play state
     const location = useLocation();
     const scenario = location.state.scenario;
+    const audioRef = useRef(null);
 
     const handleUploadRecording = async (blobUrl) => {
         if (!blobUrl) return;
 
         try {
-            // Fetch the recorded blob
             const response = await fetch(blobUrl);
             const blob = await response.blob();
 
-            // Create a new file from the blob
             const file = new File([blob], "recording.mp3", { type: "audio/mpeg" });
 
-            // Prepare FormData for upload
             const formData = new FormData();
             formData.append("audio", file);
+            formData.append("scenario", JSON.stringify(scenario));
 
-            // Backend API URL
             const backendUrl = "http://localhost:3000/transcribe";
 
-            // Upload to backend
             const uploadResponse = await fetch(backendUrl, {
                 method: "POST",
                 body: formData,
@@ -36,25 +35,49 @@ const Practise = () => {
                 throw new Error("Failed to fetch response audio");
             }
 
-            // Convert the response into a blob and create a URL for playback
             const audioBlob = await uploadResponse.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
-            setResponseAudioUrl(audioUrl); // Store AI response audio URL
-
+            setResponseAudioUrl(audioUrl);
         } catch (error) {
             console.error("Error uploading recording:", error);
         }
     };
 
-    // Automatically upload whenever a new recording is made
     useEffect(() => {
         if (latestBlobUrl) {
             handleUploadRecording(latestBlobUrl);
         }
     }, [latestBlobUrl]);
 
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.onplay = () => {
+                setIsActive(true);
+                setIsPlaying(true);
+            };
+            audioRef.current.onpause = () => {
+                setIsActive(false);
+                setIsPlaying(false);
+            };
+            audioRef.current.onended = () => {
+                setIsActive(false);
+                setIsPlaying(false);
+            };
+        }
+    }, [responseAudioUrl]);
+
+    const handleMicClick = (status, startRecording, stopRecording) => {
+        if (status === "recording") {
+            stopRecording();
+        } else if (isPlaying) {
+            audioRef.current.pause(); // Pause AI response audio
+        } else {
+            startRecording();
+        }
+    };
+
     return (
-        <div className="container">
+        <div className="practise-container">
             <h1>Practice Your Speaking</h1>
             <p>Scenario: {scenario.title || "No scenario provided"}</p>
 
@@ -70,32 +93,16 @@ const Practise = () => {
                     return (
                         <div>
                             <button
-                                className={`mic-button ${status === "recording" ? "recording" : ""}`}
-                                onClick={() => {
-                                    if (status === "recording") {
-                                        stopRecording();
-                                    } else {
-                                        startRecording();
-                                    }
-                                }}
+                                className={`mic-button ${
+                                    status === "recording" || isActive ? "active" : ""
+                                }`}
+                                onClick={() => handleMicClick(status, startRecording, stopRecording)}
                             >
-                                🎤
+                                <img src="../../public/icon.png" className="mic-icon" alt="Mic" />
                             </button>
 
-                            {/* Display the recorded audio */}
-                            {mediaBlobUrl && (
-                                <div>
-                                    <p>Your Recording:</p>
-                                    <audio controls src={mediaBlobUrl} />
-                                </div>
-                            )}
-
-                            {/* Display and play the AI-generated response */}
                             {responseAudioUrl && (
-                                <div>
-                                    <p>AI Response:</p>
-                                    <audio controls src={responseAudioUrl} autoPlay />
-                                </div>
+                                <audio ref={audioRef} src={responseAudioUrl} autoPlay hidden />
                             )}
                         </div>
                     );

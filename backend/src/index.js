@@ -45,41 +45,37 @@ app.get('/', (req, res)=>{
 // });
 
 app.post("/transcribe", upload.single("audio"), async (req, res) => {
-    let tempFilePath; // Declare outside so it's accessible in finally
-
+    let tempFilePath; 
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No audio file uploaded" });
         }
 
+        const scenario = req.body.scenario ? JSON.parse(req.body.scenario) : {title: "General conversation", description: "Start with any casual topic", userRole: "Partner 2", systemRole: "Partner 1"};
+        console.log("Received scenario: ", scenario);
         console.log("Received file:", req.file.originalname);
 
-        // Save buffer to a temporary file
         tempFilePath = path.join(__dirname, "temp_audio.mp3");
         fs.writeFileSync(tempFilePath, req.file.buffer);
 
-        // Transcribe using the temporary file path
         const transcription = await transcribeAudio(tempFilePath);
-        const deepSeekResponse = await getDeepSeekResponse(transcription);
+        const deepSeekResponse = await getDeepSeekResponse(transcription, scenario);
 
         const audioFilePath = await createAudioFileFromText(deepSeekResponse);
         console.log("Saving audio file to:", audioFilePath);
 
-        // ✅ Ensure file exists before sending
         if (!fs.existsSync(audioFilePath)) {
             throw new Error("Generated audio file not found");
         }
 
         console.log("Audio file successfully created at:", audioFilePath);
 
-        // Send the file after confirming its existence
         res.sendFile(path.resolve(audioFilePath), (err) => {
             if (err) {
                 console.error("Error sending audio file:", err);
                 res.status(500).json({ error: "Failed to send audio file" });
             }
             
-            // Cleanup: Delete after sending
             setTimeout(() => {
                 fs.unlinkSync(audioFilePath);
                 console.log("Deleted audio file:", audioFilePath);

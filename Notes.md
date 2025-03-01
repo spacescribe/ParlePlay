@@ -15,3 +15,6 @@
 
 # Typescript to Js
 npx tsc
+
+# Git
+git rm --cached backend/src/*.mp3      //to untrack files
